@@ -31,12 +31,14 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 from PIL import Image
 
+from .transforms import _build_transforms
+
 # ---- Constants -------------------------------------------------------
 
-IMAGENET_MEAN = [0.485, 0.456, 0.406]
-IMAGENET_STD = [0.229, 0.224, 0.225]
+# IMAGENET_MEAN = [0.485, 0.456, 0.406]
+# IMAGENET_STD = [0.229, 0.224, 0.225]
 
-IMG_SIZE = 256
+# IMG_SIZE = 256
 VAL_FRACTION = 0.15          # ~15% of test/* stratified into val
 MIN_STRATIFY_COUNT = 15      # defect folders smaller than this skip val entirely
 SEED = 42
@@ -101,13 +103,13 @@ def build_split(data_root: str, category: str, splits_dir: str, seed: int = SEED
 
 # ---- Datasets -----------------------------------------------------------
 
-def _build_transforms():
-    """Returns the two transforms applied to the SAME resized image:
-    one ImageNet-normalized (encoder input), one plain [0,1] (recon target)."""
-    resize = transforms.Resize((IMG_SIZE, IMG_SIZE))
-    to_tensor = transforms.ToTensor()  # -> [0,1]
-    normalize = transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
-    return resize, to_tensor, normalize
+# def _build_transforms():
+#     """Returns the two transforms applied to the SAME resized image:
+#     one ImageNet-normalized (encoder input), one plain [0,1] (recon target)."""
+#     resize = transforms.Resize((IMG_SIZE, IMG_SIZE))
+#     to_tensor = transforms.ToTensor()  # -> [0,1]
+#     normalize = transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
+#     return resize, to_tensor, normalize
 
 
 class MVTecTrainDataset(Dataset):
