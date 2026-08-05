@@ -31,7 +31,7 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 from PIL import Image
 
-from transforms import _build_transforms
+from .transforms import _build_transforms
 
 # ---- Constants -------------------------------------------------------
 
