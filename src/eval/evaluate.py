@@ -102,7 +102,11 @@ def run_full_test_eval(model, test_loader, device):
 def evaluate_checkpoint(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    ckpt = torch.load(args.checkpoint, map_location=device)
+    # weights_only=False: safe here since this is our own checkpoint, saved
+    # by our own train.py, not a downloaded/untrusted file. PyTorch 2.6+
+    # defaults to weights_only=True, which blocks loading the args/history
+    # dict alongside the model weights.
+    ckpt = torch.load(args.checkpoint, map_location=device, weights_only=False)
     model, saved_args = rebuild_model_from_checkpoint(ckpt, device)
     print(f"Loaded checkpoint from epoch {ckpt['epoch']} "
           f"(val_auc at save time: {ckpt['val_auc']:.4f})")
