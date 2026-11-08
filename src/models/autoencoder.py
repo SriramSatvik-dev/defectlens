@@ -13,7 +13,7 @@ hardcode the choice, so Ablation 2 (fine-tuning) and Ablation 3/4
 import torch
 import torch.nn as nn
 
-from .encoder import ResNet18Encoder, EfficientNetB0Encoder, my_Encoder
+from .encoder import ResNet18Encoder, EfficientNetB0Encoder, CustomConvEncoder
 from .bottleneck import Bottleneck
 from .decoder import Decoder
 
