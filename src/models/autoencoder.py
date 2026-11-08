@@ -13,7 +13,7 @@ hardcode the choice, so Ablation 2 (fine-tuning) and Ablation 3/4
 import torch
 import torch.nn as nn
 
-from .encoder import ResNet18Encoder, EfficientNetB0Encoder
+from .encoder import ResNet18Encoder, EfficientNetB0Encoder, my_Encoder
 from .bottleneck import Bottleneck
 from .decoder import Decoder
 
@@ -55,3 +55,8 @@ if __name__ == "__main__":
     eff_out = eff_model(dummy)
     assert eff_out.shape == dummy.shape, "EfficientNet-B0 path must also reconstruct full size"
     print("EfficientNet-B0 ablation path output shape:", eff_out.shape, "(matches input, as expected)")
+
+    cust_enc_model = DefectLensAE(encoder=my_Encoder)
+    cust_enc_out = cust_enc_model(dummy)
+    assert cust_enc_out.shape == dummy.shape, "Output shape not matching"
+    print("Custom Encoder ablation path output shape:", cust_enc_out.shape, "(matches input, as expected)")

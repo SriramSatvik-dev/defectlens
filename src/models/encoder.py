@@ -15,6 +15,53 @@ import torch.nn as nn
 from torchvision.models import resnet18, ResNet18_Weights
 from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
 
+class CustomConvEncoder(nn.Module):
+    """From-scratch convolutional encoder, modeled on Bergmann et al. 2018
+    (SSIM autoencoder). Trained jointly with the decoder, no pretraining.
+
+    Input:  ImageNet-normalized [B, 3, 256, 256]
+            (BatchNorm in the first block absorbs the normalization scale,
+            so dataset.py doesn't need to change.)
+    Output: spatial feature map [B, out_channels, 16, 16]
+
+    Four stride-2 convs give /16 downsampling, matching the pretrained
+    encoders, so bottleneck.py and decoder.py work unchanged.
+
+    freeze defaults to False: a frozen randomly-initialized encoder is
+    meaningless. Don't use it with --freeze_encoder (see freeze_utils edit).
+    """
+
+    def __init__(self, freeze: bool = False, out_channels: int = 32):
+        super().__init__()
+
+        def block(in_ch, out_ch, k, s):
+            return nn.Sequential(
+                nn.Conv2d(in_ch, out_ch, kernel_size=k, stride=s, padding=1, bias=False),
+                nn.BatchNorm2d(out_ch),
+                nn.LeakyReLU(0.2, inplace=True),
+            )
+
+        self.net = nn.Sequential(
+            block(3, 32, 4, 2),     # 256 -> 128
+            block(32, 32, 4, 2),    # 128 -> 64
+            block(32, 32, 3, 1),    #  64 -> 64
+            block(32, 64, 4, 2),    #  64 -> 32
+            block(64, 64, 3, 1),    #  32 -> 32
+            block(64, 128, 4, 2),   #  32 -> 16
+            block(128, 64, 3, 1),   #  16 -> 16
+            block(64, 32, 3, 1),    #  16 -> 16
+            nn.Conv2d(32, out_channels, kernel_size=1),
+        )
+
+        self.out_channels = out_channels
+        self.set_frozen(freeze)
+
+    def set_frozen(self, freeze: bool):
+        for p in self.parameters():
+            p.requires_grad = not freeze
+
+    def forward(self, x):
+        return self.net(x)
 
 class ResNet18Encoder(nn.Module):
     """Pretrained ResNet18, truncated after layer3.

@@ -20,7 +20,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from src.data.dataset import get_datasets
-from src.models.encoder import ResNet18Encoder, EfficientNetB0Encoder
+from src.models.encoder import ResNet18Encoder, EfficientNetB0Encoder, CustomConvEncoder
 from src.models.autoencoder import DefectLensAE
 from src.losses.mse_loss import MSELoss
 from src.losses.ssim_composite_loss import CompositeLoss
@@ -34,6 +34,8 @@ def build_model(args, device):
         encoder = ResNet18Encoder(freeze=True)  # start frozen, freeze_utils adjusts below
     elif args.encoder_backbone == "efficientnet_b0":
         encoder = EfficientNetB0Encoder(freeze=True)
+    elif args.encoder_backbone == "custom_cae":
+        encoder = CustomConvEncoder(freeze=False)
     else:
         raise ValueError(f"Unknown encoder_backbone: {args.encoder_backbone}")
 
@@ -181,7 +183,7 @@ def parse_args():
     p.add_argument("--ssim_win_size", type=int, default=11)
 
     p.add_argument("--encoder_backbone", type=str, default="resnet18",
-                    choices=["resnet18", "efficientnet_b0"])
+                    choices=["resnet18", "efficientnet_b0", "custom_cae"])
     p.add_argument("--freeze_encoder", action="store_true", default=True)
     p.add_argument("--no_freeze_encoder", dest="freeze_encoder", action="store_false")
     p.add_argument("--latent_channels", type=int, default=256)

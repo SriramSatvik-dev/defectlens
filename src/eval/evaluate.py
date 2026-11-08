@@ -37,7 +37,7 @@ import numpy as np
 from torch.utils.data import DataLoader
 
 from src.data.dataset import get_datasets
-from src.models.encoder import ResNet18Encoder, EfficientNetB0Encoder
+from src.models.encoder import ResNet18Encoder, EfficientNetB0Encoder, CustomConvEncoder
 from src.models.autoencoder import DefectLensAE
 from src.eval.metrics import (
     compute_pixel_error_map,
@@ -58,6 +58,8 @@ def rebuild_model_from_checkpoint(ckpt, device):
         encoder = ResNet18Encoder(freeze=True)  # freeze state irrelevant at eval time
     elif saved_args["encoder_backbone"] == "efficientnet_b0":
         encoder = EfficientNetB0Encoder(freeze=True)
+    elif saved_args["encoder_backbone"] == "custom_cae":
+        encoder = CustomConvEncoder(freeze=False)
     else:
         raise ValueError(f"Unknown encoder_backbone in checkpoint: {saved_args['encoder_backbone']}")
 

@@ -47,6 +47,9 @@ def apply_freeze_config(encoder, encoder_backbone: str, freeze_encoder: bool):
     """Single entrypoint train.py calls -- decides which freeze strategy
     to apply based on config, so train.py doesn't need if/else branches
     on backbone type itself."""
+    if encoder_backbone == "custom_cae":
+        unfreeze_all(encoder)
+        return
     if freeze_encoder:
         freeze_all(encoder)
     else:
